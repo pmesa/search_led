@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/pmesa/Documents/Software/arduino-1.8.8/tools/**",
+                "/home/pmesa/Documents/Software/arduino-1.8.8/hardware/arduino/avr/**"
+            ],
+            "forcedInclude": [
+                "/home/pmesa/Documents/Software/arduino-1.8.8/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/opt/microchip/xc8/v1.45/bin/cpp",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

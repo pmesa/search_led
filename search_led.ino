@@ -32,20 +32,13 @@ void setup()
   FastLED.setBrightness(255);
   //FastLED_GFX.setTextColor(CRGB::White);
   delay(500);
-  /*
+ 
     verticalLineUp(127, 3, 1);
     verticalLineDown(127, 3, 1);
 
-    FastLED.showColor(CRGB::Red);
-    delay(400);
-    FastLED.showColor(CRGB::Lime);
-    delay(400);
-    FastLED.showColor(CRGB::Blue);
-    delay(400);
-    FastLED.showColor(CRGB::White);
-    delay(400);
+  rainbowVerticalStripsLoop(1);
 
-  */
+  rainbowHorizontalStripsLoop(5);
 
   FastLED.clear(true);
 

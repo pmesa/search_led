@@ -245,3 +245,18 @@ void rainbowNoise(uint8_t loops, int delay_time)
   }
   
 }
+
+void chevron(int x, int y, int l, boolean dir, CRGB Col,CRGB BGCol)
+{
+  int j = 0;
+
+  leds.DrawFilledRectangle(0, 0, leds.Width(), leds.Height(), BGCol);
+  
+  for(int i=0;i<max(y,leds.Height()-y);i++)
+  {
+    leds.DrawLine(x+((dir?-1:1)*(l+j)), y-i, x+((dir?-1:1)*(j)), y-i, Col);
+    leds.DrawLine(x+((dir?-1:1)*(l+j)), y+i, x+((dir?-1:1)*(j)), y+i, Col);    
+    j++;
+  }
+  FastLED.show();
+}

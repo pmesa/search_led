@@ -295,3 +295,21 @@ void comet(int x, int y, int len, boolean dir, boolean draw, int Col)
     FastLED.show();
   }
 }
+
+void scrolling_chevrons(int y, int len, int Col, int delay_time)
+{
+  int starting_x = leds.Width() + max(y, leds.Height()-y) + len;
+  int num_chev = starting_x/len;
+  
+  for(int f=0;f<len;f++)
+  {
+
+    for(int i = 0; i < num_chev; i++)
+    {
+      chevron(starting_x - (i * len), y, len, true, false, CHSV(Col, ((i+f)%len)*(255/len), 80), CHSV(0,0,0));
+    }
+
+    FastLED.show();
+    delay(delay_time);
+  }
+}

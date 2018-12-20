@@ -14,6 +14,19 @@
 #define MATRIX_SIZE         (MATRIX_WIDTH*MATRIX_HEIGHT)
 #define NUMPIXELS           MATRIX_SIZE
 
+#define ch1   19
+#define ch2   18
+#define ch3   17
+#define ch4   16  
+#define ch5   15
+#define ch6   14
+#define PIR1  13
+#define PIR2  12  
+
+
+
+
+
 // create our matrix based on matrix definition
 cLEDMatrix<MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_TYPE> leds;
 
@@ -23,6 +36,15 @@ int16_t counter;
 
 void setup()
 {
+
+  pinMode(ch1, INPUT_PULLUP);
+  pinMode(ch2, INPUT_PULLUP);
+  pinMode(ch3, INPUT_PULLUP);
+  pinMode(ch4, INPUT_PULLUP);
+  pinMode(ch5, INPUT_PULLUP);
+  pinMode(ch6, INPUT_PULLUP);
+  pinMode(PIR1, INPUT_PULLUP);
+  pinMode(PIR2, INPUT_PULLUP);
 
   randomSeed(analogRead(0));
 

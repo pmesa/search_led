@@ -260,3 +260,16 @@ void chevron(int x, int y, int l, boolean dir, CRGB Col,CRGB BGCol)
   }
   FastLED.show();
 }
+
+void comet(int x, int y, int len, boolean dir, boolean draw, int Col)
+{
+  for(int i = 0; i < len; i++)
+  {
+    leds.DrawPixel(x, y + (dir?-1:1)*(i), CHSV(Col, (255 - (255/len)*i), (255 - (255/len)*i)));
+  }
+
+  if(draw)
+  {
+    FastLED.show();
+  }
+}

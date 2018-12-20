@@ -220,3 +220,28 @@ void rainbowHorizontalStripsLoop(uint8_t loops)
     FastLED.show();
   }
 }
+
+void rainbowNoise(uint8_t loops, int delay_time)
+{
+  uint16_t x,y,i;
+
+  while(i <= loops)
+  {
+    for(x = 0; x < leds.Width(); x++)
+    {
+      for(y = 0; y < leds.Height(); y++)
+      {
+        leds.DrawPixel(x, y, CHSV(random(255), 127+random(127), random(255)));
+      }
+    }
+    FastLED.show();
+
+    if(loops != 0)
+    {
+      i++;
+    }
+
+    delay(delay_time);
+  }
+  
+}

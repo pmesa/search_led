@@ -26,11 +26,13 @@
 #define COMET           15
 #define SCROLL_RAINBOW  14
 
+#define OFFSET 13
+
 //other ideas
 
 #define METEOR_SHOWER 6
 
-bool tidie = false;
+bool tiedie = false;
 bool circles = false;
 bool rect = false;
 bool comet = false;
@@ -38,6 +40,7 @@ bool scroll_rainbow = false;
 
 bool changePattern = false;
 
+uint8_t switcher = 0;
 
 // create our matrix based on matrix definition
 cLEDMatrix<MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_TYPE> leds;
@@ -69,6 +72,8 @@ void setup()
 
   FastLED.clear(true);
 
+  verticalLineUp(127, 3, 1);
+  verticalLineDown(127, 3, 1);
 
   counter = 0;
 }
@@ -76,65 +81,32 @@ void setup()
 
 void loop()
 {
+  checkRemoteInputs();
 
-  uint8_t k , j, l;
-  randomSeed(analogRead(0));
-
-  for (l = 0; l < 3; l++)
+  
+  switch (switcher + OFFSET)
   {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    centralRectangle(16, 36, ForestColors_p);
+    case TIEDIE:
+      tiediePattern();
+      break;
+
+    case CIRCLES:
+      circlesPattern();
+      break;
+
+    case RECT:
+      rectPattern();
+      break;
+
+    case COMET:
+      cometPattern();
+      break;
+
+    case SCROLL_RAINBOW:
+      scrollRainbowPattern();
+      break; 
+
   }
-
-  for (l = 0; l < 3; l++)
-  {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    centralRectangle(8, 48, LavaColors_p);
-  }
-
-  for (l = 0; l < 3; l++)
-  {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    centralRectangle(24, 24, OceanColors_p);
-  }
-
-  for (l = 0; l < 3; l++)
-  {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    centralRectangle(8, 8, CloudColors_p);
-  }
-
-  FastLED.clear();
-
-  for (k = 0; k < 12; k++)
-  {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    expandingRainbowRectangle(randx, randy);
-  }
-
-  FastLED.clear();
-
-  for (j = 0; j < 12; j++)
-  {
-    randomSeed(analogRead(0));
-    uint8_t randx = random(leds.Width());
-    uint8_t randy = random(leds.Height());
-    myFirstTieDie(randx, randy);
-  }
-
-  FastLED.clear();
-
-
 
 }
 
@@ -152,7 +124,7 @@ void checkRemoteInputs()
     if (digitalRead(TIEDIE) == 0)
     {
       setAllFalse();
-      tidie = true;
+      tiedie = true;
       changePattern = true;
     }
 
@@ -167,6 +139,7 @@ void checkRemoteInputs()
     if (digitalRead(RECT) == 0)
     {
       setAllFalse();
+      rect = true;
       changePattern = true;
     }
 
@@ -189,11 +162,103 @@ void checkRemoteInputs()
 
 }
 
+void tiediePattern()
+{
+  randomSeed(analogRead(0));
+  uint8_t randx = random(leds.Width());
+  uint8_t randy = random(leds.Height());
+  myFirstTieDie(randx, randy);
+}
+
+void rectPattern()
+{
+  uint8_t k , j, l;
+  uint8_t count = 0;
+
+  while ((count < 4) && (!changePattern))
+  {
+    count++;
+    checkRemoteInputs();
+    uint8_t randx = random(leds.Width());
+    uint8_t randy = random(leds.Height());
+    centralRectangle(16, 36, ForestColors_p);
+  }
+
+  count = 0;
+  while ((count < 4) && (!changePattern))
+  {
+    count++;
+    checkRemoteInputs();
+    uint8_t randx = random(leds.Width());
+    uint8_t randy = random(leds.Height());
+    centralRectangle(8, 48, LavaColors_p);
+  }
+
+  count = 0;
+  while ((count < 4) && (!changePattern))
+  {
+    count++;
+    checkRemoteInputs();
+    uint8_t randx = random(leds.Width());
+    uint8_t randy = random(leds.Height());
+    centralRectangle(24, 24, OceanColors_p);
+  }
+
+  count = 0;
+  while ((count < 4) && (!changePattern))
+  {
+    count++;
+    checkRemoteInputs();
+    uint8_t randx = random(leds.Width());
+    uint8_t randy = random(leds.Height());
+    centralRectangle(8, 8, CloudColors_p);
+  }
+
+  FastLED.clear();
+  count = 0;
+  while ((count < 4) && (!changePattern))
+  {
+    count++;
+    checkRemoteInputs();
+    uint8_t randx = random(leds.Width());
+    uint8_t randy = random(leds.Height());
+    expandingRainbowRectangle(randx, randy);
+  }
+
+  FastLED.clear();
+}
+
+
+void circlesPattern()
+{
+  randomSeed(analogRead(0));
+  uint8_t randx = random(leds.Width());
+  uint8_t randy = random(leds.Height());
+  myFirstTieDie(randx, randy);
+}
+
+
+void cometPattern()
+{
+  randomSeed(analogRead(0));
+  uint8_t randx = random(leds.Width());
+  uint8_t randy = random(leds.Height());
+  myFirstTieDie(randx, randy);
+}
+
+
+void scrollRainbowPattern()
+{
+  randomSeed(analogRead(0));
+  uint8_t randx = random(leds.Width());
+  uint8_t randy = random(leds.Height());
+  myFirstTieDie(randx, randy);
+}
 
 void setAllFalse()
 {
   delay(100); // becounce
-  tidie = false;
+  tiedie = false;
   circles = false;
   rect = false;
   comet = false;
@@ -620,28 +685,7 @@ void expandingRainbowCircle(uint8_t x, uint8_t y)
 
 
 }
-// void rainbowHorizontalStripsLoop(uint8_t loops)
-//{
-//  uint8_t hue;
-//  int16_t x, y, i;
-//  uint8_t h;
-//
-//  for (i = 0; i < loops * 50; i++)
-//  {
-//    h = hue;
-//
-//    // ** Fill LED's with horizontal stripes
-//    for (y = 0; y < leds.Height(); y++)
-//    {
-//      leds.DrawLine(0, y, leds.Width() - 1, y, CHSV(h, 255, 255));
-//      h += 16;
-//    }
-//
-//    hue += 2;
-//
-//    FastLED.show();
-//  }
-//}
+
 
 void rainbowNoise(uint8_t loops, int delay_time)
 {

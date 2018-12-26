@@ -46,6 +46,8 @@ void setup()
   pinMode(PIR1, INPUT_PULLUP);
   pinMode(PIR2, INPUT_PULLUP);
 
+ 
+
   randomSeed(analogRead(0));
 
 
@@ -55,12 +57,12 @@ void setup()
   //FastLED_GFX.setTextColor(CRGB::White);
   delay(500);
  
-    verticalLineUp(127, 3, 1);
-    verticalLineDown(127, 3, 1);
+//    verticalLineUp(127, 3, 1);
+//    verticalLineDown(127, 3, 1);
+//
+//  rainbowVerticalStripsLoop(1);
 
-  rainbowVerticalStripsLoop(1);
-
-  rainbowHorizontalStripsLoop(5);
+ 
 
   FastLED.clear(true);
 
@@ -72,46 +74,15 @@ void setup()
 void loop()
 {
   randomSeed(analogRead(0));
+//void comet(int x, int y, int len, boolean dir, boolean draw, int Col)
 
+
+scrolling_chevrons(36, 3, 127, 100);
+  
   uint8_t randx = random(leds.Width());
   uint8_t randy = random(leds.Height());
   expandingRainbowCircle(randx, randy);
 
-/*
-
-  rainbowVerticalStripsLoop(1);
-
-  rainbowHorizontalStripsLoop(5);
-  FastLED.clear(true);
-
-
-  FastLED.showColor(CRGB::Blue);
-  delay(2000);
-
-
-
-
-
-  verticalLineUp(127, 3, 10);
-  verticalLineDown(127, 3, 10);
-  FastLED.showColor(CRGB::Red);
-  delay(2000);
-  FastLED.showColor(CRGB::Lime);
-  delay(2000);
-  FastLED.showColor(CRGB::Blue);
-  delay(2000);
-  FastLED.showColor(CRGB::Red);
-  delay(2000);
-  FastLED.clear(true);
-  verticalLineUp(127, 3, 10);
-  verticalLineDown(127, 3, 10);
-
-
-  rainbowVerticalStripsLoop(5);
-  FastLED.clear(true);
-  delay(500);
-  rainbowVerticalStripsLoop(5);
-*/
 }
 
 
@@ -306,7 +277,7 @@ void scrolling_chevrons(int y, int len, int Col, int delay_time)
 
     for(int i = 0; i < num_chev; i++)
     {
-      chevron(starting_x - (i * len), y, len, true, false, CHSV(Col, ((i+f)%len)*(255/len), 80), CHSV(0,0,0));
+      chevron(starting_x - (i * len), y, len, true, CHSV(Col, ((i+f)%len)*(255/len), 80), CHSV(0,0,0));
     }
 
     FastLED.show();

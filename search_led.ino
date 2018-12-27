@@ -72,8 +72,8 @@ void setup()
 
   FastLED.clear(true);
 
-  verticalLineUp(127, 3, 1);
-  verticalLineDown(127, 3, 1);
+  verticalLineUp(127, 3);
+  verticalLineDown(127, 3);
 
   counter = 0;
 }
@@ -83,28 +83,34 @@ void loop()
 {
   checkRemoteInputs();
 
-  
   switch (switcher + OFFSET)
   {
     case TIEDIE:
+      changePattern = false;
       tiediePattern();
       break;
 
     case CIRCLES:
+      changePattern = false;
       circlesPattern();
       break;
 
     case RECT:
+      changePattern = false;
       rectPattern();
       break;
 
     case COMET:
+      changePattern = false;
       cometPattern();
       break;
 
     case SCROLL_RAINBOW:
+      changePattern = false;
       scrollRainbowPattern();
-      break; 
+      break;
+
+
 
   }
 
@@ -125,6 +131,7 @@ void checkRemoteInputs()
     {
       setAllFalse();
       tiedie = true;
+      switcher = 1;
       changePattern = true;
     }
 
@@ -133,6 +140,7 @@ void checkRemoteInputs()
     {
       setAllFalse();
       circles = true;
+      switcher = 2;
       changePattern = true;
     }
 
@@ -140,6 +148,7 @@ void checkRemoteInputs()
     {
       setAllFalse();
       rect = true;
+      switcher = 3;
       changePattern = true;
     }
 
@@ -147,6 +156,7 @@ void checkRemoteInputs()
     {
       setAllFalse();
       comet = true;
+      switcher = 4;
       changePattern = true;
     }
 
@@ -154,6 +164,7 @@ void checkRemoteInputs()
     {
       setAllFalse();
       scroll_rainbow = true;
+      switcher = 5;
       changePattern = true;
     }
 
@@ -167,7 +178,11 @@ void tiediePattern()
   randomSeed(analogRead(0));
   uint8_t randx = random(leds.Width());
   uint8_t randy = random(leds.Height());
+  while(!changePattern)
+  {
+  checkRemoteInputs();
   myFirstTieDie(randx, randy);
+  }
 }
 
 void rectPattern()
@@ -240,19 +255,40 @@ void circlesPattern()
 
 void cometPattern()
 {
-  randomSeed(analogRead(0));
-  uint8_t randx = random(leds.Width());
-  uint8_t randy = random(leds.Height());
-  myFirstTieDie(randx, randy);
+  randomSeed(A0); 
+  int  randCol = random(0,255);
+  while(!changePattern)
+  {
+    checkRemoteInputs();
+    verticalLineUp(randCol, 4);
+
+  }
+
 }
 
 
 void scrollRainbowPattern()
 {
-  randomSeed(analogRead(0));
-  uint8_t randx = random(leds.Width());
-  uint8_t randy = random(leds.Height());
-  myFirstTieDie(randx, randy);
+ int count =0; 
+ while ((!changePattern)&&(count<leds.Width()))
+ {
+  checkRemoteInputs();
+  leds.DrawLine (count, 0, count, leds.Height(),CHSV(25*count,255,255));
+  if(count>0)
+  {
+   leds.DrawLine (count-1 ,0, count-1, leds.Height(),CHSV(0,0,0));
+  }
+
+  if(count == leds.Width()-1)
+  {
+    //leds.DrawLine (count, count ,0, leds.Height(),CHSV(0,0,0));
+    count = 0;
+  }
+  count ++;
+  FastLED.show();
+  delay(100);
+ }
+ 
 }
 
 void setAllFalse()
@@ -263,6 +299,9 @@ void setAllFalse()
   rect = false;
   comet = false;
   scroll_rainbow = false;
+  FastLED.clear(true);
+  expandingRainbowCircle(16, 36);
+  FastLED.clear(true);
 }
 
 
@@ -443,44 +482,18 @@ void myFirstTieDie(uint8_t x, uint8_t y)
     leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20)); delay(4);
     leds.DrawFilledCircle(x, y, r + 2, CHSV( r * 20 + randCol, 255, 255 - r * 20)); delay(4);
     leds.DrawFilledCircle(x, y, r + 3, CHSV( r * 20 + randCol, 255, 255 - r * 20)); delay(4);
-    //    leds.DrawFilledCircle(x+16,y+36, r,    CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y+36, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y+36, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y+36, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x, y+36 , r, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x, y+36, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x, y+36, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x, y+36, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y, r,    CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
-    //    leds.DrawFilledCircle(x+16,y, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));delay(1);
 
     if ( r > 1)
     {
       leds.DrawFilledCircle(x, y, r - 2, CHSV( (r + 1) * 20 + randCol, 255, 255 - (r + 1) * 20)); delay(4);
       leds.DrawFilledCircle(x, y, r - 1, CHSV( (r + 2) * 20 + randCol, 255, 255 - (r + 2) * 20)); delay(4);
-      //      leds.DrawFilledCircle(x+16,y+36, r - 2, CHSV( (r+1) * 20 + randCol, 255, 255-(r+1)*20));delay(1);
-      //      leds.DrawFilledCircle(x+16,y+36, r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
-      ////      leds.DrawFilledCircle(x+16,y, r - 2, CHSV( (r+1) * 20 + randCol, 255, 255-(r+1)*20));delay(1);
-      //      leds.DrawFilledCircle(x+16,y, r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
-      //      leds.DrawFilledCircle(x,y+36, r - 2, CHSV( (r+1) * 20 + randCol, 255, 255-(r+1)*20));delay(1);
-      //      leds.DrawFilledCircle(x,y+36, r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
 
       if (r == leds.Height() / 2)
       {
         leds.DrawFilledCircle(x, y,  r, CHSV( (r + 3) * 20 + randCol, 255, 255 - (r + 3) * 20)); delay(4);
         leds.DrawFilledCircle(x, y,  r - 1, CHSV( (r + 2) * 20 + randCol, 255, 255 - (r + 2) * 20)); delay(4);
         leds.DrawFilledCircle(x, y,  r - 2, CHSV( (r + 1) * 20 + randCol, 255, 255 - (r + 1) * 20)); delay(4);
-        //        leds.DrawFilledCircle(x+16,y+36,  r, CHSV( (r+3) * 20 + randCol, 255, 255-(r+3)*20));delay(1);
-        //        leds.DrawFilledCircle(x+16,y+36,  r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
-        //        leds.DrawFilledCircle(x+16,y+36,  r - 2, CHSV( (r+1)* 20 + randCol, 255, 255-(r+1)*20));delay(1);
-        ////        leds.DrawFilledCircle(x+16,y,  r, CHSV( (r+3) * 20 + randCol, 255, 255-(r+3)*20));delay(1);
-        //        leds.DrawFilledCircle(x+16,y,  r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
-        //        leds.DrawFilledCircle(x+16,y,  r - 2, CHSV( (r+1)* 20 + randCol, 255, 255-(r+1)*20));delay(1);
-        //        leds.DrawFilledCircle(x,y+36,  r, CHSV( (r+3) * 20 + randCol, 255, 255-(r+3)*20));delay(1);
-        //        leds.DrawFilledCircle(x,y+36,  r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));delay(1);
-        //        leds.DrawFilledCircle(x,y+36,  r - 2, CHSV( (r+1)* 20 + randCol, 255, 255-(r+1)*20));delay(1);
+
       }
     }
 
@@ -496,87 +509,60 @@ void myFirstTieDie(uint8_t x, uint8_t y)
     leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawFilledCircle(x, y, r + 2, CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawFilledCircle(x, y, r + 3, CHSV( r * 20 + randCol, 255, 255 - r * 20));
-    //    leds.DrawFilledCircle(x+16,y+36, r,    CHSV( r * 20 + randCol, 255, 255-r*20));
-    //    leds.DrawFilledCircle(x+16,y+36, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));
-    //    leds.DrawFilledCircle(x+16,y+36, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));
-    //    leds.DrawFilledCircle(x+16,y+36, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));
-
+ 
     if ( r > 1)
     {
       leds.DrawFilledCircle(x, y, r - 2, CHSV( (r + 1) * 20 + randCol, 255, 255 - (r + 1) * 20));
       leds.DrawFilledCircle(x, y, r - 1, CHSV( (r + 2) * 20 + randCol, 255, 255 - (r + 2) * 20));
-      //      leds.DrawFilledCircle(x+16,y+36, r - 2, CHSV( (r+1) * 20 + randCol, 255, 255-(r+1)*20));
-      //      leds.DrawFilledCircle(x+16,y+36, r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));
-
+  
       if (r == leds.Height() / 2)
       {
         leds.DrawFilledCircle(x, y,  r, CHSV( (r + 3) * 20 + randCol, 255, 255 - (r + 3) * 20));
         leds.DrawFilledCircle(x, y,  r - 1, CHSV( (r + 2) * 20 + randCol, 255, 255 - (r + 2) * 20));
         leds.DrawFilledCircle(x, y,  r - 2, CHSV( (r + 1) * 20 + randCol, 255, 255 - (r + 1) * 20));
-        //        leds.DrawFilledCircle(x+16,y+36,  r, CHSV( (r+3) * 20 + randCol, 255, 255-(r+3)*20));
-        //        leds.DrawFilledCircle(x+16,y+36,  r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));
-        //        leds.DrawFilledCircle(x+16,y+36,  r - 2, CHSV( (r+1)* 20 + randCol, 255, 255-(r+1)*20));
+
       }
     }
 
 
     FastLED.show();
-    delay(5);
+
   }
 }
 
-//  for (r = (leds.Height() / 4) - 5; r == 0 ; r--)
-//  {
-//    leds.DrawFilledCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255-r*20));
-//    leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));
-//    leds.DrawFilledCircle(x, y, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));
-//    leds.DrawFilledCircle(x, y, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));
-////    leds.DrawFilledCircle(x, y, r + 4, CHSV( r * 20 + randCol, 255, 255-r*20));
-////    leds.DrawFilledCircle(x, y, r + 3, CHSV( r * 20 + randCol, 255, 255-r*20));
-////    leds.DrawFilledCircle(x, y, r + 2, CHSV( r * 20 + randCol, 255, 255-r*20));
-////    leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255-r*20));
-////    leds.DrawFilledCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255-r*20));
-//
-//
-//    //leds.DrawFilledCircle(leds.Width()/2, leds.Height()/2, r,CHSV(0, 0,0));
-//    if ( r > 1)
-//    {
-//      leds.DrawFilledCircle(x, y, r - 2, CHSV( (r+1) * 20 + randCol, 255, 255-(r+1)*20));
-//      leds.DrawFilledCircle(x, y, r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));
-//      // leds.DrawFilledCircle(leds.Width() / 2, leds.Height() / 2, r-2, CHSV(0, 0, 0));
-//
-//      if (r == leds.Height() / 2)
-//      {
-//        leds.DrawFilledCircle(x, y,  r, CHSV( (r+3) * 20 + randCol, 255, 255-(r+3)*20));
-//        leds.DrawFilledCircle(x, y,  r - 1, CHSV( (r+2) * 20 + randCol, 255, 255-(r+2)*20));
-//        leds.DrawFilledCircle(x, y,  r - 2, CHSV( (r+1)* 20 + randCol, 255, 255-(r+1)*20));
-//      }
-//    }
-//
-//
-//    FastLED.show();
-//    delay(1);
-//  }
-
-void verticalLineUp(uint8_t hue, uint8_t thickness, uint8_t wait)
+void verticalLineUp(uint8_t hue, uint8_t thickness)
 {
   int16_t y, t;
-  for (y = 0; y < leds.Height(); y++)
+  
+  while ((!changePattern)&&(y < leds.Height()))
   {
-
+    checkRemoteInputs();
     for (t = 0; t < thickness; t++)
     {
-      leds.DrawLine(0, y + t, leds.Width() - 1, y + t, CHSV(hue, 255, 255));
-      if (y >= thickness)
+      leds.DrawLine(0, y + t, leds.Width() - 1, y + t, CHSV(hue+y*20, 255, 255));
+      if (y>t)
+      {
         leds.DrawLine(0, y - thickness + t, leds.Width() - 1, y - thickness + t, CHSV(0, 0, 0));
+        
+      }
+
+      
+      if (y > thickness-1)
+      {
+        leds.DrawLine(0, y - thickness + t, leds.Width() - 1, y - thickness + t, CHSV(0, 0, 0));
+        
+      }
     }
 
+    y++;
     FastLED.show();
-    // delay(wait);
+    
   }
+   leds.DrawLine(0, leds.Height()-1, leds.Width() - 1, leds.Height()-1, CHSV(0, 0, 0));
+        
 }
 
-void verticalLineDown(uint8_t hue, uint8_t thickness, uint8_t wait)
+void verticalLineDown(uint8_t hue, uint8_t thickness)
 {
   int16_t y, t;
   for (y = leds.Height(); y > 0; y--)
@@ -590,7 +576,7 @@ void verticalLineDown(uint8_t hue, uint8_t thickness, uint8_t wait)
     }
 
     FastLED.show();
-    //    delay(wait);
+   
   }
 }
 

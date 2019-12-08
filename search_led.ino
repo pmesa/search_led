@@ -15,6 +15,28 @@
 #define MATRIX_SIZE         (MATRIX_WIDTH*MATRIX_HEIGHT)
 #define NUMPIXELS           MATRIX_SIZE
 
+/*
+  #define CH3A          18
+  #define GND1          19
+  #define CH2A          20
+  #define NOA           21
+  #define COMA          22
+  #define NCA           23
+*/
+
+/*
+ * 
+  #define NCB           34 //changed on board
+  #define GND2          35
+  #define COMB          36 //changed on board
+  #define GND3          37
+  #define CH2B          38
+  #define NOB           39
+//DA0 = COMB
+//DA1 = NCB
+  //A22 and A21 remapped to 36 and 34 - routing error
+*/
+
 
 #define PIR1  20
 #define PIR2  13
@@ -91,7 +113,10 @@ void setup()
 
   FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0], leds.Size()).setCorrection(TypicalSMD5050);
   FastLED.setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(255);
+  ///FULL
+  //FastLED.setBrightness(255);
+  ///TEST
+  FastLED.setBrightness(100);
   delay(500);
 
 
@@ -105,16 +130,23 @@ void setup()
 
 
 
-  verticalLineDown(127, 3);
 
-  counter = 0;
-  //rainbowScrollUpPattern();
+
+  for (int i = 0; i < 72; i++)
+  {
+
+    leds.DrawPixel(0,i, CHSV(255, 127, 255));
+    FastLED.show();
+    delay(50);
+  }
+
 }
 
 
 void loop()
 {
 
+//verticalLineDown(127, 3);
 
   checkRemoteInputs();
 
@@ -163,7 +195,7 @@ void loop()
       break;
   }
 
-  
+
 
 }
 
@@ -219,29 +251,29 @@ void checkRemoteInputs()
       changePattern = true;
     }
 
-//    if (digitalRead(PIR1) == 1)
-//    {
-//      
-//        setAllFalse();
-//        changePattern = false;
-//        rainbowScrollDown = true;
-//        switcher = 8;
-//        changePattern = true;
-//      
-//
-//    }
-//
-//        if (digitalRead(PIR2) == 1)
-//    {
-//      
-//        setAllFalse();
-//        changePattern = false;
-//        rainbowScrollUp = true;
-//        switcher = 9;
-//        changePattern = true;
-//      
-//
-//    }
+    //    if (digitalRead(PIR1) == 1)
+    //    {
+    //
+    //        setAllFalse();
+    //        changePattern = false;
+    //        rainbowScrollDown = true;
+    //        switcher = 8;
+    //        changePattern = true;
+    //
+    //
+    //    }
+    //
+    //        if (digitalRead(PIR2) == 1)
+    //    {
+    //
+    //        setAllFalse();
+    //        changePattern = false;
+    //        rainbowScrollUp = true;
+    //        switcher = 9;
+    //        changePattern = true;
+    //
+    //
+    //    }
 
 
   }
@@ -255,7 +287,7 @@ void tiediePattern()
   uint8_t randy = random(leds.Height());
   while (!changePattern)
   {
-    
+
     myFirstTieDie(randx, randy);
   }
 }
@@ -324,9 +356,9 @@ void circlesPattern()
   randomSeed(analogRead(0));
   uint8_t randx = random(leds.Width());
   uint8_t randy = random(leds.Height());
-  
+
   expandingRainbowCircle(randx, randy);
-  
+
 }
 
 
@@ -762,7 +794,7 @@ void expandingRainbowCircle(uint8_t x, uint8_t y)
   uint8_t randCol = random(0, 255);
   int r = 0;
 
-  while((!changePattern)&&(r < (leds.Height() / 2) - 5))
+  while ((!changePattern) && (r < (leds.Height() / 2) - 5))
   {
     leds.DrawCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20));

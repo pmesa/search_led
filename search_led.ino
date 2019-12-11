@@ -15,47 +15,45 @@
 #define MATRIX_SIZE         (MATRIX_WIDTH*MATRIX_HEIGHT)
 #define NUMPIXELS           MATRIX_SIZE
 
-/*
-  #define CH3A          18
-  #define GND1          19
-  #define CH2A          20
-  #define NOA           21
-  #define COMA          22
-  #define NCA           23
-*/
+#define GND           16
+#define CH3A          18
+#define GND1          19
+#define CH2A          20
+#define NOA           21
+#define COMA          22
+#define NCA           23
 
+
+#define NCB           34 //changed on board
+#define GND2          35
+#define COMB          36 //changed on board
+#define GND3          37
+#define CH2B          38
+#define NOB           39
 /*
- * 
-  #define NCB           34 //changed on board
-  #define GND2          35
-  #define COMB          36 //changed on board
-  #define GND3          37
-  #define CH2B          38
-  #define NOB           39
-//DA0 = COMB
-//DA1 = NCB
+  //DA0 = COMB
+  //DA1 = NCB
   //A22 and A21 remapped to 36 and 34 - routing error
 */
 
 
-#define PIR1  20
-#define PIR2  13
+//#define PIR1  20
+//#define PIR2  13
 
-#define RESET           19
-#define TIEDIE          18
-#define CIRCLES         17
-#define RECT            16
-#define COMET           15
-#define NOISE           14
+//#define RESET           19
+//#define TIEDIE          18
+//#define CIRCLES         17
+//#define RECT            16
+//#define COMET           15
+//#define NOISE           14
 
-#define RAINBOW_SCROLL_UP 21
-#define RAINBOW_SCROLL_DOWN 22
+//#define RAINBOW_SCROLL_UP 21
+//#define RAINBOW_SCROLL_DOWN 22
 
 #define OFFSET 13
 
 //other ideas
 
-#define METEOR_SHOWER 6
 
 bool tiedie = false;
 bool circles = false;
@@ -96,15 +94,28 @@ void setup()
   Serial.begin(9600);
   delay(200);
   Serial.println("Starting");
-  pinMode(RESET, INPUT_PULLUP);
-  pinMode(TIEDIE, INPUT_PULLUP);
-  pinMode(CIRCLES, INPUT_PULLUP);
-  pinMode(RECT, INPUT_PULLUP);
-  pinMode(COMET, INPUT_PULLUP);
-  pinMode(NOISE, INPUT_PULLUP);
-  pinMode(PIR1, INPUT_PULLUP);
-  pinMode(PIR2, INPUT_PULLUP);
 
+  pinMode(CH3A, INPUT_PULLUP);
+  pinMode(CH2A, INPUT_PULLUP);
+  pinMode(NOA, INPUT_PULLUP);
+  pinMode(NCA, INPUT_PULLUP);
+  pinMode(NCB, INPUT_PULLUP);
+  pinMode(CH2B, INPUT_PULLUP);
+  pinMode(NOB, INPUT_PULLUP);
+
+  pinMode(COMA, OUTPUT);
+  pinMode(COMB, OUTPUT);
+  pinMode(GND, OUTPUT);
+  pinMode(GND1, OUTPUT);
+  pinMode(GND2, OUTPUT);
+  pinMode(GND3, OUTPUT);
+
+  digitalWrite(COMA, LOW);
+  digitalWrite(COMB, LOW);
+  digitalWrite(GND, LOW);
+  digitalWrite(GND1, LOW);
+  digitalWrite(GND2, LOW);
+  digitalWrite(GND3, LOW);
 
   random16_set_seed(8934);
   random16_add_entropy(analogRead(3));
@@ -135,7 +146,7 @@ void setup()
   for (int i = 0; i < 72; i++)
   {
 
-    leds.DrawPixel(0,i, CHSV(255, 127, 255));
+    leds.DrawPixel(0, i, CHSV(255, 127, 255));
     FastLED.show();
     delay(50);
   }
@@ -146,7 +157,7 @@ void setup()
 void loop()
 {
 
-//verticalLineDown(127, 3);
+  //verticalLineDown(127, 3);
 
   checkRemoteInputs();
 

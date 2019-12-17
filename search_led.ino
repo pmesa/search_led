@@ -1,3 +1,4 @@
+#include <Bounce2.h>
 #include <FastLED.h>        //https://github.com/FastLED/FastLED
 #include <LEDMatrix.h>      //https://github.com/Jorgen-VikingGod/LEDMatrix
 
@@ -15,13 +16,21 @@
 #define MATRIX_SIZE         (MATRIX_WIDTH*MATRIX_HEIGHT)
 #define NUMPIXELS           MATRIX_SIZE
 
+
+
+
+
+
+
+
+#define LED           13
 #define GND           16
-#define CH3A          18
-#define GND1          19
-#define CH2A          20
-#define NOA           21
-#define COMA          22
-#define NCA           23
+#define CH3ACOM       19 //swapped pins on RF reciever
+#define CH3A          18 //swapped pins on RF reciever
+#define CH2ACOM       20
+#define CH2A          21
+#define CH1ACOM       22
+#define CH1A          23
 
 
 #define NCB           34 //changed on board
@@ -30,6 +39,17 @@
 #define GND3          37
 #define CH2B          38
 #define NOB           39
+
+
+int UP = NOB;
+int DOWN = CH2B;
+int NYE = CH1A;
+int PIR1 = CH2A;
+int PIR2 = CH3A;
+
+
+
+
 /*
   //DA0 = COMB
   //DA1 = NCB
@@ -37,23 +57,11 @@
 */
 
 
-//#define PIR1  20
-//#define PIR2  13
 
-//#define RESET           19
-//#define TIEDIE          18
-//#define CIRCLES         17
-//#define RECT            16
-//#define COMET           15
-//#define NOISE           14
-
-//#define RAINBOW_SCROLL_UP 21
-//#define RAINBOW_SCROLL_DOWN 22
-
-#define OFFSET 13
 
 //other ideas
-
+int debounceMs = 1050;
+unsigned long lastRequested = 0;
 
 bool tiedie = false;
 bool circles = false;
@@ -63,7 +71,6 @@ bool rainbowScrollUp = false;
 bool rainbowScrollDown = false;
 bool noise = false;
 
-bool changePattern = false;
 
 uint8_t switcher = 0;
 
@@ -87,35 +94,81 @@ int y_speed = 1111;
 // create our matrix based on matrix definition
 cLEDMatrix<MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_TYPE> leds;
 
-int16_t counter;
+
+volatile int  mode = 1;
+int firstMode = 1;
+int lastMode = 5;
+volatile bool changeRequested;
+
+
+Bounce  bounceUp  = Bounce();
+Bounce  bounceDown  = Bounce();
+Bounce  bounceNye  = Bounce();
+Bounce  bouncePir1  = Bounce();
+Bounce  bouncePir2  = Bounce();
+
 
 void setup()
 {
-  Serial.begin(9600);
+
+
+
+
+
+  Serial.begin(115200);
   delay(200);
   Serial.println("Starting");
 
+  // Set initialization values for
+
   pinMode(CH3A, INPUT_PULLUP);
   pinMode(CH2A, INPUT_PULLUP);
-  pinMode(NOA, INPUT_PULLUP);
-  pinMode(NCA, INPUT_PULLUP);
+  pinMode(CH1A, INPUT_PULLUP);
   pinMode(NCB, INPUT_PULLUP);
   pinMode(CH2B, INPUT_PULLUP);
   pinMode(NOB, INPUT_PULLUP);
 
-  pinMode(COMA, OUTPUT);
+  pinMode(LED, OUTPUT);
   pinMode(COMB, OUTPUT);
   pinMode(GND, OUTPUT);
-  pinMode(GND1, OUTPUT);
   pinMode(GND2, OUTPUT);
   pinMode(GND3, OUTPUT);
+  pinMode(CH3ACOM, OUTPUT);
+  pinMode(CH2ACOM, OUTPUT);
+  pinMode(CH1ACOM, OUTPUT);
 
-  digitalWrite(COMA, LOW);
+
+  digitalWrite(CH1ACOM, LOW);
+  digitalWrite(CH2ACOM, LOW);
+  digitalWrite(CH3ACOM, LOW);
   digitalWrite(COMB, LOW);
   digitalWrite(GND, LOW);
-  digitalWrite(GND1, LOW);
   digitalWrite(GND2, LOW);
   digitalWrite(GND3, LOW);
+
+  bounceUp .attach( UP );
+  bounceUp .interval(5);
+  bounceDown .attach( DOWN );
+  bounceDown .interval(5);
+  bounceNye .attach( NYE );
+  bounceNye .interval(5);
+  bouncePir1 .attach( PIR1 );
+  bouncePir1 .interval(5);
+  bouncePir2 .attach( PIR2 );
+  bouncePir2 .interval(5);
+
+
+  attachInterrupt(digitalPinToInterrupt(UP), checkRemoteInputs, FALLING);
+  attachInterrupt(digitalPinToInterrupt(DOWN), checkRemoteInputs, FALLING);
+  attachInterrupt(digitalPinToInterrupt(NYE), checkRemoteInputs, FALLING);
+  attachInterrupt(digitalPinToInterrupt(PIR1), checkRemoteInputs, FALLING);
+  attachInterrupt(digitalPinToInterrupt(PIR2), checkRemoteInputs, FALLING);
+
+
+
+
+
+
 
   random16_set_seed(8934);
   random16_add_entropy(analogRead(3));
@@ -128,27 +181,15 @@ void setup()
   //FastLED.setBrightness(255);
   ///TEST
   FastLED.setBrightness(100);
-  delay(500);
-
 
   FastLED.clear(true);
 
-  hxy = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
-  x = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
-  y = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
-  v_time = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
-  hue_time = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
-
-
-
-
-
-  for (int i = 0; i < 72; i++)
+  for (int i = 0; i < 10; i++)
   {
 
     leds.DrawPixel(0, i, CHSV(255, 127, 255));
     FastLED.show();
-    delay(50);
+    delay(1);
   }
 
 }
@@ -157,138 +198,127 @@ void setup()
 void loop()
 {
 
-  //verticalLineDown(127, 3);
 
-  checkRemoteInputs();
 
-  switch (switcher + OFFSET)
+
+  Serial.print("Mode: ");
+  Serial.println(mode);
+
+  //Menu
+  switch (mode)
   {
-    case TIEDIE:
-      changePattern = false;
+    case 1:
+      changeRequested = false;
       tiediePattern();
       break;
 
-    case CIRCLES:
-      changePattern = false;
+    case 2:
+      changeRequested = false;
       circlesPattern();
       break;
 
-    case RECT:
-      changePattern = false;
+    case 3:
+      changeRequested = false;
       rectPattern();
       break;
 
-    case COMET:
-      changePattern = false;
+    case 4:
+      changeRequested = false;
       cometPattern();
       break;
 
-    case NOISE:
-      changePattern = false;
+    case 5:
+      changeRequested = false;
       rainbowScrollUpPattern();
-      break;
-
-    case RAINBOW_SCROLL_UP:
-      changePattern = false;
-      rainbowScrollUpPattern();
-      switcher = 0;
-      break;
-
-    case RAINBOW_SCROLL_DOWN:
-      changePattern = false;
-      rainbowScrollDownPattern();
-      switcher = 0;
       break;
 
     default:
-      changePattern = false;
+      changeRequested = false;
       noisePattern();
       break;
   }
 
 
+}
+
+
+void modeUp()
+{
+  mode++;
+  if (mode > lastMode) mode = firstMode;
 
 }
 
 
+void modeDown()
+{
+  mode--;
+  if (mode > lastMode) mode = firstMode;
+  if (mode <= 0) mode = lastMode;
+
+}
+
 
 void checkRemoteInputs()
 {
-  if (changePattern == true) //this  should debounce
+
+  bounceUp.update();
+  bounceDown.update();
+  bounceNye.update();
+  bouncePir1.update();
+  bouncePir2.update();
+
+
+  if (millis() - lastRequested > debounceMs)
   {
 
-  }
+    lastRequested = millis();
+    delay(5);
 
-  else
-  {
-    if (digitalRead(TIEDIE) == 0)
-    {
-      setAllFalse();
-      tiedie = true;
-      switcher = 1;
-      changePattern = true;
+
+
+    if (bounceUp.read() == 0)
+    {    digitalWrite(LED, !digitalRead(LED));
+      modeUp();
+      changeRequested = true;
     }
 
 
-    if (digitalRead(CIRCLES) == 0)
+    if (bounceDown.read() == 0)
     {
-      setAllFalse();
-      circles = true;
-      switcher = 2;
-      changePattern = true;
+      //setAllFalse();
+
+      modeDown();
+      changeRequested = true;
     }
 
-    if (digitalRead(RECT) == 0)
+    if (bounceNye.read() == 0)
     {
-      setAllFalse();
-      rect = true;
-      switcher = 3;
-      changePattern = true;
+
+      mode = 69;
+      //nye();
+      changeRequested = true;
     }
 
-    if (digitalRead(COMET) == 0)
+
+    if (bouncePir1.read() == 0)
     {
-      setAllFalse();
-      comet = true;
-      switcher = 4;
-      changePattern = true;
+
+      mode = 12;
+
+      changeRequested = true;
     }
 
-    if (digitalRead(NOISE) == 0)
+
+    if (bouncePir2.read() == 0)
     {
-      setAllFalse();
-      rainbowScrollUp = true;
-      switcher = 5;
-      changePattern = true;
+
+      mode = 13;
+
+      changeRequested = true;
     }
-
-    //    if (digitalRead(PIR1) == 1)
-    //    {
-    //
-    //        setAllFalse();
-    //        changePattern = false;
-    //        rainbowScrollDown = true;
-    //        switcher = 8;
-    //        changePattern = true;
-    //
-    //
-    //    }
-    //
-    //        if (digitalRead(PIR2) == 1)
-    //    {
-    //
-    //        setAllFalse();
-    //        changePattern = false;
-    //        rainbowScrollUp = true;
-    //        switcher = 9;
-    //        changePattern = true;
-    //
-    //
-    //    }
-
 
   }
-
 }
 
 void tiediePattern()
@@ -296,7 +326,7 @@ void tiediePattern()
   randomSeed(analogRead(0));
   uint8_t randx = random(leds.Width());
   uint8_t randy = random(leds.Height());
-  while (!changePattern)
+  while (!changeRequested)
   {
 
     myFirstTieDie(randx, randy);
@@ -308,40 +338,40 @@ void rectPattern()
   uint8_t k , j, l;
   uint8_t count = 0;
 
-  while ((count < 4) && (!changePattern))
+  while ((count < 4) && (!changeRequested))
   {
     count++;
-    checkRemoteInputs();
+    //checkRemoteInputs();
     uint8_t randx = random(leds.Width());
     uint8_t randy = random(leds.Height());
     centralRectangle(16, 36, ForestColors_p);
   }
 
   count = 0;
-  while ((count < 4) && (!changePattern))
+  while ((count < 4) && (!changeRequested))
   {
     count++;
-    checkRemoteInputs();
+    //checkRemoteInputs();
     uint8_t randx = random(leds.Width());
     uint8_t randy = random(leds.Height());
     centralRectangle(8, 48, LavaColors_p);
   }
 
   count = 0;
-  while ((count < 4) && (!changePattern))
+  while ((count < 4) && (!changeRequested))
   {
     count++;
-    checkRemoteInputs();
+    //checkRemoteInputs();
     uint8_t randx = random(leds.Width());
     uint8_t randy = random(leds.Height());
     centralRectangle(24, 24, OceanColors_p);
   }
 
   count = 0;
-  while ((count < 4) && (!changePattern))
+  while ((count < 4) && (!changeRequested))
   {
     count++;
-    checkRemoteInputs();
+    //checkRemoteInputs();
     uint8_t randx = random(leds.Width());
     uint8_t randy = random(leds.Height());
     centralRectangle(8, 8, CloudColors_p);
@@ -349,10 +379,10 @@ void rectPattern()
 
   FastLED.clear();
   count = 0;
-  while ((count < 4) && (!changePattern))
+  while ((count < 4) && (!changeRequested))
   {
     count++;
-    checkRemoteInputs();
+    //checkRemoteInputs();
     uint8_t randx = random(leds.Width());
     uint8_t randy = random(leds.Height());
     expandingRainbowRectangle(randx, randy);
@@ -377,9 +407,9 @@ void cometPattern()
 {
   randomSeed(A0);
   int  randCol = random(0, 255);
-  while (!changePattern)
+  while (!changeRequested)
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     verticalLineUp(randCol, 4);
 
   }
@@ -390,9 +420,9 @@ void cometPattern()
 void rainbowScrollUpPattern()
 {
   int count = 0;
-  while ((!changePattern) && (count < leds.Width()))
+  while ((!changeRequested) && (count < leds.Width()))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     leds.DrawLine (count, 0, count, leds.Height(), CHSV(25 * count, 255, 255));
     if (count > 0)
     {
@@ -415,9 +445,9 @@ void rainbowScrollUpPattern()
 void rainbowScrollDownPattern()
 {
   int count = leds.Width() - 1;
-  while ((!changePattern) && (count > 0))
+  while ((!changeRequested) && (count > 0))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     leds.DrawLine (count, 0, count, leds.Height(), CHSV(25 * count, 255, 255));
     if (count > 0)
     {
@@ -440,12 +470,18 @@ void rainbowScrollDownPattern()
 void noisePattern()
 {
 
-  checkRemoteInputs();
+  hxy = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
+  x = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
+  y = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
+  v_time = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
+  hue_time = (uint32_t)((uint32_t)random16() << 16) + (uint32_t)random16();
+
+  //checkRemoteInputs();
   fill_2dnoise16(FastLED.leds(), MATRIX_WIDTH, MATRIX_HEIGHT, true,
                  octaves, x, xscale, y, yscale, v_time,
                  hue_octaves, hxy, hue_scale, hxy, hue_scale, hue_time, false);
 
-  checkRemoteInputs();
+  //checkRemoteInputs();
   LEDS.show();
 
   // adjust the intra-frame time values
@@ -482,9 +518,9 @@ void expandingRainbowRectangle(uint8_t x, uint8_t y)
   randomSeed(analogRead(0));
   uint8_t randCol = random(0, 255);
 
-  while ((!changePattern) && (r < (leds.Height() / 2) - 5))
+  while ((!changeRequested) && (r < (leds.Height() / 2) - 5))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
 
     leds.DrawFilledRectangle(x, y, x + r, y + r, CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawFilledRectangle(x, y, x + r + 1, y + r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20));
@@ -526,9 +562,9 @@ void centralRectangle(uint8_t x, uint8_t y, CRGBPalette16 palette)
   randomSeed(analogRead(0));
   uint8_t randCol = random(0, 255);
 
-  while ((!changePattern) && (r < (leds.Height() / 2) - 5))
+  while ((!changeRequested) && (r < (leds.Height() / 2) - 5))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     frac = (r / float(((leds.Height() / 2) - 5)));
 
     for (p = 0; p < 9; p++)
@@ -637,10 +673,10 @@ void myFirstTieDie(uint8_t x, uint8_t y)
   randomSeed(analogRead(0));
   uint8_t randCol = random(0, 255);
 
-  while ((!changePattern) && (r < (leds.Height() / 4)))
+  while ((!changeRequested) && (r < (leds.Height() / 4)))
   {
 
-    checkRemoteInputs();
+    //checkRemoteInputs();
 
     leds.DrawFilledCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255 - r * 20)); delay(4);
     leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20)); delay(4);
@@ -668,9 +704,9 @@ void myFirstTieDie(uint8_t x, uint8_t y)
 
   r =  (leds.Height() / 4) - 5;
 
-  while ((!changePattern) && (r > 0))
+  while ((!changeRequested) && (r > 0))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     leds.DrawFilledCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawFilledCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawFilledCircle(x, y, r + 2, CHSV( r * 20 + randCol, 255, 255 - r * 20));
@@ -700,9 +736,9 @@ void verticalLineUp(uint8_t hue, uint8_t thickness)
 {
   int16_t y, t;
 
-  while ((!changePattern) && (y < leds.Height()))
+  while ((!changeRequested) && (y < leds.Height()))
   {
-    checkRemoteInputs();
+    //checkRemoteInputs();
     for (t = 0; t < thickness; t++)
     {
       leds.DrawLine(0, y + t, leds.Width() - 1, y + t, CHSV(hue + y * 20, 255, 255));
@@ -805,7 +841,7 @@ void expandingRainbowCircle(uint8_t x, uint8_t y)
   uint8_t randCol = random(0, 255);
   int r = 0;
 
-  while ((!changePattern) && (r < (leds.Height() / 2) - 5))
+  while ((!changeRequested) && (r < (leds.Height() / 2) - 5))
   {
     leds.DrawCircle(x, y , r,    CHSV( r * 20 + randCol, 255, 255 - r * 20));
     leds.DrawCircle(x, y, r + 1, CHSV( r * 20 + randCol, 255, 255 - r * 20));

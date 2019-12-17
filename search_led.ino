@@ -17,12 +17,6 @@
 #define NUMPIXELS           MATRIX_SIZE
 
 
-
-
-
-
-
-
 #define LED           13
 #define GND           16
 #define CH3ACOM       19 //swapped pins on RF reciever
@@ -47,19 +41,10 @@ int NYE = CH1A;
 int PIR1 = CH2A;
 int PIR2 = CH3A;
 
+//DA0 = COMB
+//DA1 = NCB
+//A22 and A21 remapped to 36 and 34 - routing error
 
-
-
-/*
-  //DA0 = COMB
-  //DA1 = NCB
-  //A22 and A21 remapped to 36 and 34 - routing error
-*/
-
-
-
-
-//other ideas
 int debounceMs = 1050;
 unsigned long lastRequested = 0;
 
@@ -71,8 +56,6 @@ bool rainbowScrollUp = false;
 bool rainbowScrollDown = false;
 bool noise = false;
 
-
-uint8_t switcher = 0;
 
 
 uint32_t x, y, v_time, hue_time, hxy;
@@ -101,19 +84,8 @@ int lastMode = 5;
 volatile bool changeRequested;
 
 
-Bounce  bounceUp  = Bounce();
-Bounce  bounceDown  = Bounce();
-Bounce  bounceNye  = Bounce();
-Bounce  bouncePir1  = Bounce();
-Bounce  bouncePir2  = Bounce();
-
-
 void setup()
 {
-
-
-
-
 
   Serial.begin(115200);
   delay(200);
@@ -146,29 +118,11 @@ void setup()
   digitalWrite(GND2, LOW);
   digitalWrite(GND3, LOW);
 
-  bounceUp .attach( UP );
-  bounceUp .interval(5);
-  bounceDown .attach( DOWN );
-  bounceDown .interval(5);
-  bounceNye .attach( NYE );
-  bounceNye .interval(5);
-  bouncePir1 .attach( PIR1 );
-  bouncePir1 .interval(5);
-  bouncePir2 .attach( PIR2 );
-  bouncePir2 .interval(5);
-
-
   attachInterrupt(digitalPinToInterrupt(UP), checkRemoteInputs, FALLING);
   attachInterrupt(digitalPinToInterrupt(DOWN), checkRemoteInputs, FALLING);
   attachInterrupt(digitalPinToInterrupt(NYE), checkRemoteInputs, FALLING);
   attachInterrupt(digitalPinToInterrupt(PIR1), checkRemoteInputs, FALLING);
   attachInterrupt(digitalPinToInterrupt(PIR2), checkRemoteInputs, FALLING);
-
-
-
-
-
-
 
   random16_set_seed(8934);
   random16_add_entropy(analogRead(3));
@@ -197,9 +151,6 @@ void setup()
 
 void loop()
 {
-
-
-
 
   Serial.print("Mode: ");
   Serial.println(mode);
@@ -262,63 +213,58 @@ void modeDown()
 void checkRemoteInputs()
 {
 
-  bounceUp.update();
-  bounceDown.update();
-  bounceNye.update();
-  bouncePir1.update();
-  bouncePir2.update();
-
 
   if (millis() - lastRequested > debounceMs)
   {
 
     lastRequested = millis();
-    delay(5);
+    delay(15);
 
-
-
-    if (bounceUp.read() == 0)
-    {    digitalWrite(LED, !digitalRead(LED));
+    if (digitalRead(UP) == 0)
+    {
       modeUp();
-      changeRequested = true;
+      modeChange();
     }
 
 
-    if (bounceDown.read() == 0)
+    if (digitalRead(DOWN) == 0)
     {
-      //setAllFalse();
 
       modeDown();
-      changeRequested = true;
+      modeChange();
     }
 
-    if (bounceNye.read() == 0)
+    if (digitalRead(NYE) == 0)
     {
 
       mode = 69;
-      //nye();
-      changeRequested = true;
+
+      modeChange();
     }
 
 
-    if (bouncePir1.read() == 0)
+    if (digitalRead(PIR1) == 0)
     {
 
       mode = 12;
-
-      changeRequested = true;
+      modeChange();
     }
 
 
-    if (bouncePir2.read() == 0)
+    if (digitalRead(PIR2) == 0)
     {
 
       mode = 13;
-
-      changeRequested = true;
+      modeChange();
     }
 
   }
+}
+
+void modeChange()
+{
+  digitalWrite(LED, !digitalRead(LED));
+  changeRequested = true;
 }
 
 void tiediePattern()

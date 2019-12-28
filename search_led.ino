@@ -132,9 +132,9 @@ void setup()
   FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0], leds.Size()).setCorrection(TypicalSMD5050);
   FastLED.setCorrection(TypicalLEDStrip);
   ///FULL
-//  FastLED.setBrightness(255);
-  ///TEST
   FastLED.setBrightness(100);
+  ///TEST
+//  FastLED.setBrightness(255);
 
   FastLED.clear(true);
 
@@ -167,7 +167,7 @@ void loop()
 
     case 2:
       changeRequested = false;
-      blindMe();
+      noisePattern();
       break;
 
     case 3:
@@ -182,7 +182,7 @@ void loop()
 
     case 5:
       changeRequested = false;
-      rainbowScrollUpPattern();
+      circlesPattern();
       break;
 
     case 12:
@@ -317,6 +317,8 @@ void rectPattern()
 {
   uint8_t k , j, l;
   uint8_t count = 0;
+
+  FastLED.clear();
 
   while ((count < 4) && (!changeRequested))
   {

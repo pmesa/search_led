@@ -1,4 +1,20 @@
 
+uint32_t x, y, v_time, hue_time, hxy;
+// how many octaves to use for the brightness and hue functions
+uint8_t octaves = 54;
+uint8_t hue_octaves = 10;
+// the 'distance' between points on the x and y axis
+int xscale = 57771;
+int yscale = 57771;
+// the 'distance' between x/y points for the hue noise
+int hue_scale = 1;
+// how fast we move through time & hue noise
+int time_speed = 1111;
+int hue_speed = 31;
+// adjust these values to move along the x or y axis between frames
+int x_speed = 331;
+int y_speed = 1111;
+
 void noisePattern()
 {
 

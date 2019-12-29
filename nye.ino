@@ -13,26 +13,22 @@ void nye(void)
   // HSV(hue_in_degrees/360 * 255, sat/100 * 255, V/100 * 255)
   // V proportionally changes each RGB channels brightness eg . V(100%) = RGB(100, 255, 200) then V(50%) = (50, 127, 100)
    
-   FastLED.clear();
+//   FastLED.clear();
 
    // Blue Pillars
    // leds.DrawLine(x1, y1, x2, y2, CHSV(H, S, V))
    // Light Blue #1C8EFF HSV(210, 89, 100) CHSV(149, 227, 255)
 
-//   leds.DrawLine(0, 0, 3, leds.Height() - 1, CHSV(0, 0, 0));
-//   leds.DrawLine(leds.Width - 4, 0, leds.Width - 1, leds.Height() - 1, CHSV(0, 0, 0));
-
-
-
-  // Countdown
+//   Countdown
 
   int count_s;
 
   for (count_s = 0; count_s < 10; count_s++) 
   {
-    leds.DrawLine(4, 0, (count_s * 2 + 5), leds.Height() - 1, CHSV(149, 227, 255));
+    leds.DrawLine(2 * count_s + 4, 0, 2 * count_s + 4, leds.Height(), CHSV(149, 227, 255));
+    leds.DrawLine(2 * count_s + 5, 0, 2 * count_s + 5, leds.Height(), CHSV(149, 227, 255));
     FastLED.show();
-    delay(1000);
+    delay(100);
   }
 
   delay(500);
@@ -41,9 +37,13 @@ void nye(void)
 
   delay(500);
 
-  // Celebration
+  expandingGapCircle(leds.Width()/2, leds.Height()/2);
 
-  rainbowNoiseNYE(20, 500, 5000);
+  
+
+//  // Celebration
+//
+  rainbowNoiseNYE(200, 20, 500);
   
   
 }
@@ -56,6 +56,7 @@ void rainbowNoiseNYE(uint8_t loops, int delay_time_ms, int fade_time_ms)
   
   int colours[MATRIX_WIDTH][MATRIX_HEIGHT];
   int saturations[MATRIX_WIDTH][MATRIX_HEIGHT];
+  int brightnesss[MATRIX_WIDTH][MATRIX_HEIGHT];
   
   while (i <= loops)
   {
@@ -65,9 +66,11 @@ void rainbowNoiseNYE(uint8_t loops, int delay_time_ms, int fade_time_ms)
       {
         colours[x][y] = random(255);
         saturations[x][y] = 127 + random(127);
-        leds.DrawPixel(x, y, CHSV(colours[x][y], saturations[x][y], 255));
+        brightnesss[x][y] = random(255);
+        leds.DrawLine(x, y, x, y,CHSV(colours[x][y], saturations[x][y], brightnesss[x][y]));
       }
     }
+    
     FastLED.show();
 
     if (loops != 0)
@@ -76,8 +79,9 @@ void rainbowNoiseNYE(uint8_t loops, int delay_time_ms, int fade_time_ms)
     }
 
     delay(delay_time_ms);
+    leds.DrawFilledRectangle(0,0, leds.Width(),leds.Height(), CHSV(0,0,0));
 
-    FastLED.clear();
+    FastLED.show();
 
     delay(delay_time_ms);
   }
@@ -86,20 +90,81 @@ void rainbowNoiseNYE(uint8_t loops, int delay_time_ms, int fade_time_ms)
 
   int bright;
 
-  for (bright = 255; bright > 0; bright--)
+  for (bright = 100; bright > 0; bright--)
   {
       for (x = 0; x < leds.Width(); x++)
       {
         for (y = 0; y < leds.Height(); y++)
         {
-          leds.DrawPixel(x, y, CHSV(colours[x][y], saturations[x][y], bright));
+          leds.DrawPixel(x, y, CHSV(colours[x][y], saturations[x][y], brightnesss[x][y] * bright / 100));
         }
       }
       
       FastLED.show();
   
-      delay(fade_time_ms/255);
+      delay(fade_time_ms/100);
     }
 
     delay(delay_time_ms);
+}
+
+
+void expandingGapCircle(uint8_t x, uint8_t y)
+
+{
+  uint8_t r, i;
+  //float frac;
+
+  //  x = leds.Width() / 2;
+  //  y = leds.Height() / 2;
+  randomSeed(analogRead(0));
+  uint8_t randomColour = random(0, 255);
+
+  for (r = 0; r < (leds.Height() / 2) - 5; r++)
+  {
+    //frac = (r / float(((leds.Height()/2)-5)));
+
+    leds.DrawFilledCircle(x, y, r, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+    leds.DrawFilledCircle(x, y, r + 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+    leds.DrawFilledCircle(x, y, r + 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+    //leds.DrawFilledCircle(x, y, r + 3, ColorFromPalette(palette,252*frac,252-frac*252));
+
+    if (r > 1)
+    {
+      leds.DrawFilledCircle(x, y, r - 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+      leds.DrawFilledCircle(x, y, r - 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+
+      if (r == leds.Height() / 2)
+      {
+        leds.DrawFilledCircle(x, y, r, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+        leds.DrawFilledCircle(x, y, r - 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+        leds.DrawFilledCircle(x, y, r - 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
+      }
+    }
+
+    FastLED.show();
+  }
+
+  for (r = 0; r < (leds.Height() / 3) - 5; r++)
+  {
+    leds.DrawFilledCircle(x, y, r, CHSV(0, 0, 0));
+    leds.DrawFilledCircle(x, y, r + 1, CHSV(0, 0, 0));
+    leds.DrawFilledCircle(x, y, r + 2, CHSV(0, 0, 0));
+    leds.DrawFilledCircle(x, y, r + 3, CHSV(0, 0, 0));
+
+    if (r > 1)
+    {
+      leds.DrawFilledCircle(x, y, r - 2, CHSV(0, 0, 0));
+      leds.DrawFilledCircle(x, y, r - 1, CHSV(0, 0, 0));
+
+      if (r == leds.Height() / 2)
+      {
+        leds.DrawFilledCircle(x, y, r, CHSV(0, 0, 0));
+        leds.DrawFilledCircle(x, y, r - 1, CHSV(0, 0, 0));
+        leds.DrawFilledCircle(x, y, r - 2, CHSV(0, 0, 0));
+      }
+    }
+
+    FastLED.show();
+  }
 }

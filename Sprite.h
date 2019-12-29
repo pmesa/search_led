@@ -7,7 +7,7 @@ typedef struct
    
 } lineSprite;
 
-lineSprite line[6];
+lineSprite qline[6];
 
 typedef struct 
 {
@@ -20,7 +20,7 @@ bool isActive;
    
 } ballSprite;
 
-ballSprite ball[6];
+ballSprite qball[6];
 
 typedef struct 
 {
@@ -31,7 +31,7 @@ typedef struct
    
 } rainSprite;
 
-rainSprite rain[];
+rainSprite rain[14];
 
 // int lineSpriteCounter = 0; //Keeps track of how many sprites have been defined
 

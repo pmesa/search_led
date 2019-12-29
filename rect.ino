@@ -8,20 +8,8 @@ void rectPattern()
 
   FastLED.clear();
 
-  while ((count < repeats) && (!changeRequested))
-  {
-    count++;
-    centralRectangle(16, 36, ForestColors_p);
-  }
-
-  count = 0;
-  while ((count < repeats) && (!changeRequested))
-  {
-    count++;
-    randx = random(leds.Width());
-    randy = random(leds.Height());
-    centralRectangle(24, 24, LavaColors_p);
-  }
+  centralRectangle(16, 36, ForestColors_p);
+  centralRectangle(24, 24, LavaColors_p);
 
   count = 0;
   while ((count < repeats * 2) && (!changeRequested))

@@ -25,68 +25,6 @@ void rainbowNoise(uint8_t loops, int delay_time)
 
 
 
-void expandingGapCircle(uint8_t x, uint8_t y)
-
-{
-  uint8_t r, i;
-  //float frac;
-
-  //  x = leds.Width() / 2;
-  //  y = leds.Height() / 2;
-  randomSeed(analogRead(0));
-  uint8_t randomColour = random(0, 255);
-
-  for (r = 0; r < (leds.Height() / 3) - 5; r++)
-  {
-    //frac = (r / float(((leds.Height()/2)-5)));
-
-    leds.DrawFilledCircle(x, y, r, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-    leds.DrawFilledCircle(x, y, r + 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-    leds.DrawFilledCircle(x, y, r + 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-    //leds.DrawFilledCircle(x, y, r + 3, ColorFromPalette(palette,252*frac,252-frac*252));
-
-    if (r > 1)
-    {
-      leds.DrawFilledCircle(x, y, r - 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-      leds.DrawFilledCircle(x, y, r - 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-
-      if (r == leds.Height() / 2)
-      {
-        leds.DrawFilledCircle(x, y, r, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-        leds.DrawFilledCircle(x, y, r - 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-        leds.DrawFilledCircle(x, y, r - 2, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
-      }
-    }
-
-    FastLED.show();
-    delay(1);
-  }
-
-  for (r = 0; r < (leds.Height() / 3) - 5; r++)
-  {
-    leds.DrawFilledCircle(x, y, r, CHSV(0, 0, 0));
-    leds.DrawFilledCircle(x, y, r + 1, CHSV(0, 0, 0));
-    leds.DrawFilledCircle(x, y, r + 2, CHSV(0, 0, 0));
-    leds.DrawFilledCircle(x, y, r + 3, CHSV(0, 0, 0));
-
-    if (r > 1)
-    {
-      leds.DrawFilledCircle(x, y, r - 2, CHSV(0, 0, 0));
-      leds.DrawFilledCircle(x, y, r - 1, CHSV(0, 0, 0));
-
-      if (r == leds.Height() / 2)
-      {
-        leds.DrawFilledCircle(x, y, r, CHSV(0, 0, 0));
-        leds.DrawFilledCircle(x, y, r - 1, CHSV(0, 0, 0));
-        leds.DrawFilledCircle(x, y, r - 2, CHSV(0, 0, 0));
-      }
-    }
-
-    FastLED.show();
-    delay(1);
-  }
-}
-
 void rainbowVerticalStripsLoop(uint8_t loops)
 {
   uint8_t hue;

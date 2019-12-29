@@ -30,7 +30,7 @@
 #define CH2B 38
 #define NOB 39
 
-//#define 
+//#define
 
 int UP = NOB;
 int DOWN = CH2B;
@@ -151,7 +151,9 @@ void loop()
   {
     case 1:
       changeRequested = false;
-      tiediePatternRandom();
+      simpleRainPattern();
+      break;
+
       break;
 
     case 2:
@@ -174,14 +176,14 @@ void loop()
       circlesPattern();
       break;
 
-    default:
-      changeRequested = false;
-      simpleRainPattern();
-      break;
-
     case 6:
       changeRequested = false;
       tiediePatternRandom();
+      break;
+
+    default:
+      changeRequested = false;
+      simpleRainPattern();
       break;
   }
 }

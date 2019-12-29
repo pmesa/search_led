@@ -1,27 +1,7 @@
 
-int dropLength = 5;
-int defaultSpeed = 500;
+int dropLength = 3;
+int defaultSpeed = 1;
 int lightningSpeed = 100;
-
-void simpleRainPattern( )
-{
-  initialiseRain();
-  while (!changeRequested)
-  {
-    if ((PIR1triggered) || (PIR2triggered))
-    {
-      if (PIR1triggered) {
-        lightning (true);
-      }
-      else {
-        lightning (false);
-      }
-      clearPIRs();
-    }
-    updateRaindrops(defaultSpeed);
-  }
-}
-
 
 typedef struct
 {
@@ -35,19 +15,55 @@ typedef struct
 
 rainSprite raindrop[14];
 
+void simpleRainPattern( )
+{
+  initialiseRain();
+  while (!changeRequested)
+  {
+    updateRaindrops(defaultSpeed);
+
+    if ((PIR1triggered) || (PIR2triggered))
+    {
+
+
+      if (PIR1triggered) {
+        lightning (true);
+      }
+      else {
+        lightning (false);
+      }
+      clearPIRs();
+    }
+
+  }
+}
+
+
+
+
 void initialiseRain()
 {
 
   for ( int i = 0 ; i < 14; i++)
   {
-    raindrop[i].isOn = random(0, 1);
-    raindrop[i].velocity = random(1, 5);
-    raindrop[i].yPos = leds.Height();
+    raindrop[i].isOn = true;//random(0,255)%2;
+    raindrop[i].velocity = random(2, 6);
+    raindrop[i].yPos = leds.Height() - 1;
     raindrop[i].xPos = random(leds.Width() / 2);
     raindrop[i].hue = 127;
   }
 
 }
+
+void initialiseRaindrop(int drop)
+{
+    raindrop[drop].isOn = true;//random(0,255)%2;
+    raindrop[drop].velocity = random(1, 5);
+    raindrop[drop].yPos = leds.Height() - 1;
+    //raindrop[drop].xPos = random(leds.Width() / 2);
+    raindrop[drop].hue = 127;
+}
+
 
 void updateRaindrops(int rainSpeed)
 {
@@ -73,21 +89,22 @@ void updateRaindrops(int rainSpeed)
       if (raindrop[i].yPos <= 0)
       {
         raindrop[i].isOn = false;
+        //initialiseRaindrop[i];
       }
       else
       {
-        raindrop[i].yPos -= 1 ; //TODO this potentially writes to a negative line position
+        raindrop[i].yPos -= raindrop[i].velocity ; //TODO this potentially writes to a negative line position
       }
     }
   }
 
   //check if the values are all false and need to get more rain!
-  bool rainOn = false;
+  int resetRain = false;
   for ( int i = 0 ; i < 14; i++) {
-    rainOn |= raindrop[i].isOn;
+    resetRain += !(raindrop[i].isOn);
   }
 
-  if (rainOn) {
+  if (resetRain>12) {
     initialiseRain();
   }
 

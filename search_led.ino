@@ -1,6 +1,5 @@
 #include <FastLED.h>   //https://github.com/FastLED/FastLED
 #include <LEDMatrix.h> //https://github.com/Jorgen-VikingGod/LEDMatrix
-#include "Sprite.h"
 
 // Change the next defines to match your matrix type and size
 #define DATA_PIN 1
@@ -30,6 +29,8 @@
 #define GND3 37
 #define CH2B 38
 #define NOB 39
+
+//#define 
 
 int UP = NOB;
 int DOWN = CH2B;
@@ -174,6 +175,11 @@ void loop()
       break;
 
     default:
+      changeRequested = false;
+      simpleRainPattern();
+      break;
+
+    case 6:
       changeRequested = false;
       tiediePatternRandom();
       break;

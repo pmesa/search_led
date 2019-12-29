@@ -15,7 +15,6 @@ void noisePattern()
   FastLED.show();
   if ((PIR1triggered) || (PIR2triggered))
   {
-
     fastFlash(20, random(255));
     clearPIRs();
   }

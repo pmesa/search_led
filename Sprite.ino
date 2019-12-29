@@ -22,16 +22,7 @@ bool isActive;
 
 ballSprite qball[6];
 
-typedef struct 
-{
-   bool isActive;
-   int velocity;
-   bool direction;
-   int yPos;
-   
-} rainSprite;
 
-rainSprite rain[14];
 
 // int lineSpriteCounter = 0; //Keeps track of how many sprites have been defined
 

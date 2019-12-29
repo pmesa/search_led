@@ -118,7 +118,7 @@ void setup()
 
   randomSeed(analogRead(0));
 
-  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0], leds.Size()).setCorrection(TypicalSMD5050);
+  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0],leds.Size()).setCorrection(TypicalSMD5050);
   FastLED.setCorrection(TypicalLEDStrip);
   ///FULL
   FastLED.setBrightness(25);
@@ -171,6 +171,11 @@ void loop()
     case 5:
       changeRequested = false;
       circlesPattern();
+      break;
+      
+    case 2020:
+      changeRequested = false;
+      nye();
       break;
 
     default:

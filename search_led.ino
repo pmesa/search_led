@@ -51,7 +51,7 @@ cLEDMatrix<MATRIX_WIDTH, MATRIX_HEIGHT, MATRIX_TYPE> leds;
 
 volatile int mode = 1;
 int firstMode = 1;
-int lastMode = 5;
+int lastMode = 6;
 
 volatile bool changeRequested;
 volatile bool pirRequested;
@@ -104,7 +104,7 @@ void setup()
 
   randomSeed(analogRead(0));
 
-  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0],leds.Size()).setCorrection(TypicalSMD5050);
+  FastLED.addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>(leds[0], leds.Size()).setCorrection(TypicalSMD5050);
   FastLED.setCorrection(TypicalLEDStrip);
   ///FULL
   FastLED.setBrightness(25);
@@ -136,7 +136,7 @@ void loop()
   {
     case 1:
       changeRequested = false;
-      simpleRainPattern();
+      tiediePatternRandom();
       break;
 
       break;
@@ -160,17 +160,18 @@ void loop()
       changeRequested = false;
       circlesPattern();
       break;
-      
-    case 2020:
-      changeRequested = false;
-      nye();
-      mode = 1;
-      break;
 
     case 6:
       changeRequested = false;
-      tiediePatternRandom();
+      simpleRainPattern();
+
       break;
+
+   case 2020:
+    changeRequested = false;
+    nye();
+    mode = 1;
+    break;
 
     default:
       changeRequested = false;

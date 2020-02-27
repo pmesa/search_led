@@ -3,8 +3,23 @@ void circlesPattern()
   randomSeed(analogRead(0));
   uint8_t randx = random(leds.Width());
   uint8_t randy = random(leds.Height());
-
-  expandingRainbowCircle(randx, randy);
+  
+  if (PIR2triggered)
+  {
+    randy = 36;
+    randx = 27;
+    PIR2triggered = false;
+    pirRequested = false;
+  } 
+  else if (PIR1triggered)
+  {
+    randy = 36;
+    randx = 0;
+    PIR1triggered = false;
+    pirRequested = false;
+  }
+    expandingRainbowCircle(randx, randy);
+  
 }
 
 
@@ -16,7 +31,7 @@ void expandingRainbowCircle(uint8_t x, uint8_t y)
   uint8_t randomColour = random(0, 255);
   int r = 0;
 
-  while ((!changeRequested) && (r < (leds.Height() / 2) - 5))
+  while ((!changeRequested) && (r < (leds.Height() / 2) - 5) && (!pirRequested))
   {
     leds.DrawCircle(x, y, r, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
     leds.DrawCircle(x, y, r + 1, CHSV(r * 20 + randomColour, 255, 255 - r * 20));
@@ -37,5 +52,6 @@ void expandingRainbowCircle(uint8_t x, uint8_t y)
     }
     FastLED.show();
     r++;
+
   }
 }

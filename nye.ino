@@ -28,16 +28,11 @@ void nye(void)
     leds.DrawLine(2 * count_s + 4, 0, 2 * count_s + 4, leds.Height(), CHSV(149, 227, 255));
     leds.DrawLine(2 * count_s + 5, 0, 2 * count_s + 5, leds.Height(), CHSV(149, 227, 255));
     FastLED.show();
-    delay(100);
+    delay(1000);
   }
-
-  delay(500);
 
   FastLED.clear();
 
-  delay(500);
-
-  expandingGapCircle(leds.Width()/2, leds.Height()/2);
 
   
 

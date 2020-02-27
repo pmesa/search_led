@@ -109,7 +109,7 @@ void rainbowScrollUpPattern()
     //    }
     count++;
     FastLED.show();
-    delay(100);
+    delay(10);
   }
 
   FastLED.clear();
@@ -134,7 +134,7 @@ void rainbowScrollDownPattern()
     //    }
     count--;
     FastLED.show();
-    delay(100);
+    delay(10);
   }
 
   FastLED.clear();
